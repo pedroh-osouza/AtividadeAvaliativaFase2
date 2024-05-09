@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
+import java.util.Date;
+
 public class GerenciadorDB extends SQLiteOpenHelper
 {
     private static final String DB_NAME = "tarefas.db";
@@ -21,9 +23,9 @@ public class GerenciadorDB extends SQLiteOpenHelper
         db.execSQL("CREATE TABLE tarefas (" +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "descricao TEXT, " +
-                "prioridate TEXT, " +
-                "data_conclusao DATETIME, " +
-                "notificacacoes INTEGER" +
+                "prioridade TEXT, " +
+                "dataConclusao DATETIME, " +
+                "notificacoes INTEGER" +
                 ");");
     }
 

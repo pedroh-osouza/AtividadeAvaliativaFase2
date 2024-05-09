@@ -1,7 +1,11 @@
 package br.com.pedrohenrique.atividadeavaliativafase2;
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,44 +44,60 @@ public class MainActivity extends AppCompatActivity {
         listViewTarefas = findViewById(R.id.listViewTarefas);
 
         GerenciadorDB database = new GerenciadorDB(this);
+        recarregaListView(database);
+
         btnDefinirData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this, R.style.DialogTheme , new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                        textViewDataConclusao.setText("Data: " + day + "/" + month + "/" + year);
+                        textViewDataConclusao.setText(day + "/" + month + "/" + year);
                     }
                 }, 2024, 5, 8);
 
                 datePickerDialog.show();
+                datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+                datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
             }
         });
 
         btnAdicionarTarefa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int radioButtonId = radioGroup.getCheckedRadioButtonId();
-                RadioButton radioButton = radioGroup.findViewById(radioButtonId);
-                String descricao = edtDescricaoTarefa.getText().toString();
-                String prioridade = radioButton.getText().toString();
-                String dataConclusao = textViewDataConclusao.getText().toString();
-                Integer notificacoes = switchNotificacao.isChecked() ? 1 : 0;
-                boolean checkInsert = database.insertData(descricao, prioridade, dataConclusao, notificacoes);
-                if(!checkInsert) {
-                    Toast.makeText(MainActivity.this, "Erro ao adicionar tarefa", Toast.LENGTH_SHORT).show();
-                }
-
-                Toast.makeText(MainActivity.this, "Tarefa Adicionada", Toast.LENGTH_SHORT).show();
-
                 try {
-                    Cursor cursor = database.getData();
-                    TarefasAdapter tarefasAdapter = new TarefasAdapter(MainActivity.this, cursor);
-                    listViewTarefas.setAdapter(tarefasAdapter);
-                } catch (Exception error){
-                    System.out.println(error.getMessage());
+                    int radioButtonId = radioGroup.getCheckedRadioButtonId();
+                    RadioButton radioButton = radioGroup.findViewById(radioButtonId);
+                    String descricao = edtDescricaoTarefa.getText().toString();
+                    String prioridade = radioButton.getText().toString();
+                    String dataConclusao = textViewDataConclusao.getText().toString();
+                    Integer notificacoes = switchNotificacao.isChecked() ? 1 : 0;
+                    boolean checkInsert = database.insertData(descricao, prioridade, dataConclusao, notificacoes);
+                    if(!checkInsert) {
+                        Toast.makeText(MainActivity.this, "Erro ao adicionar tarefa", Toast.LENGTH_SHORT).show();
+                    }
+
+                    Toast.makeText(MainActivity.this, "Tarefa Adicionada", Toast.LENGTH_SHORT).show();
+                    recarregaListView(database);
+                    textViewDataConclusao.setText("");
+                    radioGroup.clearCheck();
+                    edtDescricaoTarefa.setText("");
+                    switchNotificacao.setChecked(false);
+                } catch (Exception error) {
+                    Toast.makeText(MainActivity.this, "Erro ao adicionar tarefa", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    public void recarregaListView(GerenciadorDB database)
+    {
+        try {
+            Cursor cursor = database.getData();
+            TarefasAdapter tarefasAdapter = new TarefasAdapter(MainActivity.this, cursor);
+            listViewTarefas.setAdapter(tarefasAdapter);
+        } catch (Exception error){
+            System.out.println(error.getMessage());
+        }
     }
 }
